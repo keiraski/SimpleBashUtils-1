@@ -16,10 +16,19 @@ int main(int argc, char **argv) {
     char flags[7] = "0"; // массив флагов
     int index_end_flags = 1;
     flags_parser(flags, argc, argv, &index_end_flags);
-    // Предполагаем, что имя файла передается последним аргументом
-    int err_code = print_file(argv[argc - 1], flags);
+
+    int err_code = 0;
+    // Перебираем все аргументы после флагов, считая их именами файлов
+    for (int i = index_end_flags + 1; i < argc; i++) {
+        // Печатаем содержимое каждого файла
+        if (print_file(argv[i], flags) != 0) {
+            fprintf(stderr, "Error printing file: %sn", argv[i]);
+            err_code = 1;
+        }
+    }
     return err_code;
 }
+
 
 void flags_parser(char *flags, int argc, char **argv, int *index) {
     // пройдемся по всем аргументам, кроме 1
