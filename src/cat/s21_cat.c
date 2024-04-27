@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   for (int i = index_end_flags; i < argc; i++) {
     // Печатаем содержимое каждого файла
     if (print_file(argv[i], flags) != 0) {
-      fprintf(stderr, "Error printing file: %sn", argv[i]);
+      fprintf(stderr, "Error printing file: %s\n", argv[i]);
       err_code = 1;
     }
   }
@@ -96,7 +96,7 @@ int print_file(char *name, char *flags) {
     fclose(f);
   } else {
     err_code = 1;
-    printf("Файла не существует");
+    // printf("Файла не существует");
   }
   return err_code;
 }
