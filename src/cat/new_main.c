@@ -7,7 +7,7 @@
 typedef struct arguments {
     int b, n, s, E, T, v;
 } arguments;
-
+0
 arguments argument_parser(int argc, char** argv){
     arguments arg ={0};
     struct option long_options[] = {
@@ -63,7 +63,6 @@ char v_output(char ch){
         putchar('^');
         ch = '?';
     }
-
     return ch;
 }
 
@@ -79,13 +78,11 @@ void outline(arguments *arg, char* line, int n){
     }
 }
 
-
 void output(arguments* arg, char** argv){
     if (argv[optind] == NULL) {
         fprintf(stderr, "Error: No file name provided\n");
         exit(1);
     }
-
     FILE* f = fopen(argv[optind], "r");
     if (f == NULL) {
         perror("Error opening file");
@@ -99,39 +96,28 @@ void output(arguments* arg, char** argv){
     read = getline(&line, &memline, f);
     while (read != -1) {
         bool is_empty_line = (line[0] == '\n');
-
         if (is_empty_line) {
             empty_count++;
         } else {
             empty_count = 0;
         }
-
         if (!(arg->s && empty_count > 1)) {
             if ((arg->n && !arg->b) || (arg->b && !is_empty_line)) {
                 printf("%6d\t", line_cout);
             }
-
             if (!is_empty_line || !arg->b) {
                 line_cout++; // Увеличиваем счетчик строк только для непустых строк или если не установлен флаг -b
             }
-
             outline(arg, line, read);
         }
-
         read = getline(&line, &memline, f);
     }
-
     free(line);
     fclose(f);
 }
 
-void readfile(){
-
-}
-
 int main(int argc, char** argv){
     arguments arg = argument_parser(argc, argv);
-
     if (optind >= argc) {
         fprintf(stderr, "Error: No file name provided\n");
         exit(1);

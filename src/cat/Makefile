@@ -19,10 +19,10 @@ tests:
 	-diff <(./s21_cat --number $(FILE)) <(cat -n $(FILE))
 	-diff <(./s21_cat --number-nonblank $(FILE)) <(cat -b $(FILE))
 
-	# $(CHECK) ./s21_cat $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -n $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -e $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -t $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -b $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -s $(FILE) | grep ERROR
-	# $(CHECK) ./s21_cat -etsnb $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -n $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -e $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -t $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -b $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -s $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat -etsnb $(FILE) | grep ERROR
