@@ -2,11 +2,15 @@ SHELL := /bin/bash
 FLAG = -Wall -Wextra -Werror
 FILE = 1.txt 2.txt
 PATTERNS = patterns.reg
-CHECK = 2>&1 valgrind --tool=memcheck --leak-ckeack=yes --leak-check=full --show-leak-kinds=all
+CHECK = leaks -atExit --
 ERROR = ERROR
 
-all: s21_grep tests
-s21_grep:
+all: claing grep tests
+
+claing:
+	clang-format -i *.c
+
+grep:
 	gcc $(FLAG) grep.c -o s21_grep
 
 tests:
@@ -15,12 +19,12 @@ tests:
 	-diff <(./s21_grep -i He $(FILE)) <(grep -i He $(FILE))
 	-diff <(./s21_grep -iv He $(FILE)) <(grep -iv He $(FILE))
 	-diff <(./s21_grep -in He $(FILE)) <(grep -in He $(FILE))
-	-diff <(./s21_grep -ie "^he" $(FILE)) <(grep ie "^he" $(FILE))
+	-diff <(./s21_grep -ie "^he" $(FILE)) <(grep -ie "^he" $(FILE))
 	-diff <(./s21_grep -ince "^he" $(FILE)) <(grep -ince "^he" $(FILE))
 	-diff <(./s21_grep -lh se $(FILE)) <(grep -lh se $(FILE))
 	-diff <(./s21_grep -hc e $(FILE)) <(grep -hc e $(FILE))
 	
-	-diff <(./s21_grep -e He -e he $(FILE)) <(grep He $(FILE))
+	-diff <(./s21_grep -e He -e he $(FILE)) <(grep -e He -e he $(FILE))
 	-diff <(./s21_grep -s he badfile) <(grep -s he badfile)
 	-diff <(./s21_grep -f $(PATTERNS) $(FILE)) <(grep -f $(PATTERNS) $(FILE))
 	-diff <(./s21_grep -oi he $(FILE)) <(grep -oi he $(FILE))
