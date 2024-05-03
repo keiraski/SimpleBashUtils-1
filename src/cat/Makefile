@@ -1,11 +1,15 @@
-SHELL := /bin/bash
+SHELL= /bin/bash
 FLAG = -Wall -Wextra -Werror
 FILE = 1.txt
-CHECK = 2>&1 valgrind --tool=echeck --leak-ckeack=yes
+CHECK = leaks -atExit -- ./s21_cat
 
-all: s21_cat tests
-s21_cat:
-	gcc $(FLAG) new_main.c -o s21_cat
+all: claing s21 tests
+
+claing:
+	clang-format -i *.c
+
+s21:
+	gcc $(FLAG) s21_cat.c -o s21_cat
 
 tests:
 	-diff <(./s21_cat $(FILE)) <(cat $(FILE))
@@ -19,10 +23,10 @@ tests:
 	-diff <(./s21_cat --number $(FILE)) <(cat -n $(FILE))
 	-diff <(./s21_cat --number-nonblank $(FILE)) <(cat -b $(FILE))
 
-	$(CHECK) ./s21_cat $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -n $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -e $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -t $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -b $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -s $(FILE) | grep ERROR
-	$(CHECK) ./s21_cat -etsnb $(FILE) | grep ERROR
+	$(CHECK) ./s21_cat $(FILE)
+	$(CHECK) ./s21_cat -n $(FILE)
+	$(CHECK) ./s21_cat -e $(FILE)
+	$(CHECK) ./s21_cat -t $(FILE)
+	$(CHECK) ./s21_cat -b $(FILE)
+	$(CHECK) ./s21_cat -s $(FILE)
+	$(CHECK) ./s21_cat -etsnb $(FILE)
