@@ -1,0 +1,11 @@
+s21_grep.c:void pattern_add(arguments* arg, char* pattern) {
+s21_grep.c:  while (arg->mem_pattern < arg->len_pattern + n + 1) {
+s21_grep.c:void add_reg_from_file(arguments* arg, char* filepath) {
+s21_grep.c:  while (read != -1) {
+s21_grep.c:  while ((opt = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
+s21_grep.c:void output_line(char* line, int n) {
+s21_grep.c:void print_match(regex_t* re, char* line) {
+s21_grep.c:  while (1) {
+s21_grep.c:void processFile(arguments arg, char* path, regex_t* reg) {
+s21_grep.c:  while (read != -1) {
+s21_grep.c:void output(arguments arg, int argc, char** argv) {  //выход из всех файлов
