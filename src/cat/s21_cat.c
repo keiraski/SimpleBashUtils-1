@@ -98,7 +98,7 @@ void outline(arguments* arg, char* line, ssize_t read, int* line_count,
     } else if (arg->T && line[i] == '\t') {
       printf("^I");
       continue;
-    } 
+    }
     putchar(line[i]);
   }
 }

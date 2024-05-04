@@ -3,7 +3,6 @@ FLAG = -Wall -Wextra -Werror
 FILE = 1.txt 2.txt
 PATTERNS = patterns.reg
 CHECK = leaks -atExit --
-ERROR = ERROR
 
 all: claing grep tests
 
@@ -11,7 +10,7 @@ claing:
 	clang-format -i *.c
 
 grep:
-	gcc $(FLAG) grep.c -o s21_grep
+	gcc $(FLAG) s21_grep.c -o s21_grep
 
 tests:
 	-diff <(./s21_grep He $(FILE)) <(grep He $(FILE))
@@ -33,6 +32,6 @@ tests:
 	-diff <(./s21_grep -oihlnc -e he -e Se -f patterns.reg $(FILE)) <(grep -oihlnc -e he -e Se -f patterns.reg $(FILE))
 
 
-	$(CHECK) ./s21_grep he *.txt | grep -E $(ERROR) 
-	$(CHECK) ./s21_grep -e He -e he $(FILE) | grep -E $(ERROR)
-	$(CHECK) ./s21_grep -f $(PATTERNS) $(FILE) | grep -E $(ERROR)
+	$(CHECK) ./s21_grep he *.txt
+	$(CHECK) ./s21_grep -e He -e he $(FILE)
+	$(CHECK) ./s21_grep -f $(PATTERNS) $(FILE)
