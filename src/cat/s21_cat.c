@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define _GNU_SOURCE
 
 typedef struct Arguments {
   int b, n, s, E, T, v;
@@ -14,7 +15,7 @@ arguments argument_parser(int argc, char** argv) {
                                   {"squeeze-blank", no_argument, NULL, 's'},
                                   {0, 0, 0, 0}};
   int opt;
-  while ((opt = getopt_long(argc, argv, "bnEeTtsv", long_options, NULL)) !=
+  while ((opt = getopt_long(argc, argv, "+bnEeTtsv", long_options, NULL)) !=
          -1) {
     switch (opt) {
       case 'b':
@@ -45,9 +46,7 @@ arguments argument_parser(int argc, char** argv) {
         break;
       case '?':
         fprintf(stderr, "Usage: %s [-bnEeTtsv] [file...]\n", argv[0]);
-        exit(EXIT_FAILURE);
-      default:
-        break;
+        exit(1);
     }
   }
   return arg;
@@ -80,17 +79,14 @@ void outline(arguments* arg, char* line, ssize_t read, int* line_count,
   } else {
     *empty_count = 0;
   }
-
   if ((arg->n && !arg->b) || (arg->b && !empty_line)) {
     printf("%6d\t", (*line_count)++);
   }
-
-  for (ssize_t i = 0; i < read; i++) {
+  for (int i = 0; i < read; i++) {
     if (arg->v && line[i] != '\n' && line[i] != '\t' &&
         (line[i] < 32 || line[i] == 127)) {
       line[i] = v_output(line[i]);
     } else if (arg->E && line[i] == '\n') {
-      // putchar('$');
       if (arg->b && line[0] == '\n') {
         printf("      \t$");
       } else
@@ -117,7 +113,7 @@ void output(arguments* arg, FILE* f) {
   free(line);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
   arguments arg = argument_parser(argc, argv);
   if (optind == argc) {
     output(&arg, stdin);
@@ -125,6 +121,7 @@ int main(int argc, char* argv[]) {
     for (int i = optind; i < argc; i++) {
       FILE* f = fopen(argv[i], "r");
       if (!f) {
+        fprintf(stderr, "cat: ");
         perror(argv[i]);
         continue;
       }
