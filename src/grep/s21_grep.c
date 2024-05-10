@@ -1,19 +1,18 @@
 #include <getopt.h>
 #include <regex.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define _GNU_SOURCE
 
 typedef struct arguments {
   int e, i, v, c, l, n, h, s, f, o;
-  char* pattern;
+  char *pattern;
   int len_pattern;
   int mem_pattern;
-
 } arguments;
 
-void pattern_add(arguments* arg, char* pattern) {
+void pattern_add(arguments *arg, char *pattern) {
   int n = strlen(pattern);
   if (arg->len_pattern == 0) {
     arg->pattern = malloc(1024 * sizeof(char));
@@ -21,54 +20,47 @@ void pattern_add(arguments* arg, char* pattern) {
     if (arg->pattern != NULL) {
       arg->pattern[0] = '\0';
     } else {
-      exit(EXIT_FAILURE);
+      exit(1);
     }
   }
-
   while (arg->mem_pattern < arg->len_pattern + n + 1) {
-    char* new_pattern = realloc(arg->pattern, arg->mem_pattern * 2);
+    char *new_pattern = realloc(arg->pattern, arg->mem_pattern * 2);
     if (new_pattern == NULL) {
-      // Обработка ошибки выделения памяти
-      free(arg->pattern);  // Освобождаем исходный блок памяти
-      exit(EXIT_FAILURE);
+      free(arg->pattern);
+      exit(1);
     }
     arg->pattern = new_pattern;
     arg->mem_pattern *= 2;
   }
-
   if (arg->len_pattern != 0) {
-    strcat(arg->pattern, "|");  // убрать часть с + arg->len_pattern  было 1
-                                // аргумент arg->pattern + arg->len_pattern
+    strcat(arg->pattern, "|");  // было arg->pattern + arg->len_pattern
     arg->len_pattern++;
   }
   arg->len_pattern += sprintf(arg->pattern + arg->len_pattern, "(%s)", pattern);
 }
 
-void add_reg_from_file(arguments* arg, char* filepath) {
-  FILE* f = fopen(filepath, "r");
+void add_pat_from_file(arguments *arg, char *filepath) {
+  FILE *f = fopen(filepath, "r");
   if (f == NULL) {
     if (!arg->s) perror(filepath);
     exit(1);
   }
-  char* line = NULL;
-  size_t memline = 0;
-  ssize_t read =
-      getline(&line, &memline, f);  // ssize_t эквивалентен применениею int
+  char *line = NULL;
+  size_t memlen = 0;
+  int read = getline(&line, &memlen, f);
   while (read != -1) {
     if (line[read - 1] == '\n') line[read - 1] = '\0';
     pattern_add(arg, line);
-    free(line);
-    line = NULL;
-    read = getline(&line, &memline, f);
+    read = getline(&line, &memlen, f);
   }
   free(line);
   fclose(f);
 }
 
-arguments arguments_parser(int argc, char** argv) {
+arguments argument_parser(int argc, char *argv[]) {
   arguments arg = {0};
-  int opt;
-  while ((opt = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
+  int opt = 0;
+  for (; opt != -1; opt = getopt_long(argc, argv, "e:ivclnhsf:o", NULL, 0)) {
     switch (opt) {
       case 'e':
         arg.e = 1;
@@ -80,12 +72,11 @@ arguments arguments_parser(int argc, char** argv) {
       case 'v':
         arg.v = 1;
         break;
-      case 'l':
-        arg.c = 1;
-        arg.l = 1;
-        break;
       case 'c':
         arg.c = 1;
+        break;
+      case 'l':
+        arg.l = 1;
         break;
       case 'n':
         arg.n = 1;
@@ -98,98 +89,101 @@ arguments arguments_parser(int argc, char** argv) {
         break;
       case 'f':
         arg.f = 1;
-        add_reg_from_file(&arg, optarg);
+        add_pat_from_file(&arg, optarg);
         break;
       case 'o':
         arg.o = 1;
         break;
-      default:
+      case '?':
+        exit(1);
         break;
     }
   }
-  if (arg.len_pattern == 0 &&
-      optind < argc) {  // Проверяем, что optind не выходит за пределы argc
+  if (arg.len_pattern == 0 && optind < argc) {  //&& optind < argc
     pattern_add(&arg, argv[optind]);
     optind++;
   }
-  if (argc - optind <= 1) {  // Если после обработки опций остался один аргумент
-                             // или нет аргументов
-    arg.h = 1;
-  }
+  if (argc - optind == 1) arg.h = 1;
   return arg;
 }
 
-void output_line(char* line, int n) {
+void output_line(char *line, int n) {
   for (int i = 0; i < n; i++) {
     putchar(line[i]);
   }
-  if (line[n - 1] != '\n')
-    putchar('\n');  // если в конце файла нет символка конца строки то ставится
-                    // символ конца строки
+  if (line[n - 1] != '\n') putchar('\n');
 }
 
-void print_match(regex_t* re, char* line) {
+void print_match(regex_t *re, char *line, char *path, int line_count,
+                 arguments arg) {
   regmatch_t math;
   int offset = 0;
   while (1) {
     int result = regexec(re, line + offset, 1, &math, 0);
     if (result != 0) {
       break;
-    }
+    } else if (result == REG_NOMATCH)
+      break;
+    else if (!arg.h)
+      printf("%s:", path);
+    if (arg.n) printf("%d:", line_count);
     for (int i = math.rm_so; i < math.rm_eo; i++) {
-      putchar(line[i]);
+      putchar((line + offset)[i]);
     }
     putchar('\n');
     offset += math.rm_eo;
   }
-  //   regfree(re);
 }
 
-void processFile(arguments arg, char* path, regex_t* reg) {
-  FILE* f = fopen(path, "r");
+void processFile(arguments arg, char *path, regex_t *reg) {
+  FILE *f = fopen(path, "r");
   if (f == NULL) {
     if (!arg.s) perror(path);
-    exit(1);
+    return;
   }
-  char* line = NULL;
-  size_t memline = 0;
+  char *line = NULL;
+  size_t memlen = 0;
   int read = 0;
   int line_count = 1;
   int c = 0;
-  read = getline(&line, &memline, f);
-  // ?
+  read = getline(&line, &memlen, f);
   while (read != -1) {
     int result = regexec(reg, line, 0, NULL, 0);
     if ((result == 0 && !arg.v) || (arg.v && result != 0)) {
       if (!arg.c && !arg.l) {
-        if (!arg.h)
-          printf("%s:", path);  // для вывода названий файлов при фалге -ci
-        if (arg.n) printf("%d:", line_count);  // работает при флаге -n
+        if (!arg.h && !arg.o) printf("%s:", path);
+        if (arg.n && !arg.o) printf("%d:", line_count);
         if (arg.o) {
-          print_match(reg, line);
-        } else {
+          if (result == 0) print_match(reg, line, path, line_count, arg);
+          if (result != 0 && !arg.h) printf("%s:", path);
+          if (result != 0 && arg.n) printf("%d:", line_count);
+          if (result != 0) output_line(line, read);
+        } else
           output_line(line, read);
-        }
       }
-      c++;  //последняя вложенность работает в случае отсутсвия флага -с
+      c++;
     }
-    read = getline(&line, &memline, f);
+    read = getline(&line, &memlen, f);
     line_count++;
   }
   free(line);
+  if (arg.c && arg.l) {
+    if (!arg.h) printf("%s:", path);
+    if (c >= 1)
+      printf("1\n");
+    else
+      printf("0\n");
+  }
   if (arg.c && !arg.l) {
-    if (!arg.h)
-      printf("%s:", path);  // для вывода названий файлов при фалге -ci
+    if (!arg.h) printf("%s:", path);
     printf("%d\n", c);
   }
   if (arg.l && c > 0) printf("%s\n", path);
   fclose(f);
-  // regfree(reg);
 }
 
-void output(arguments arg, int argc, char** argv) {  //выход из всех файлов
+void output(arguments arg, int argc, char **argv) {
   regex_t re;
-  // printf("%s\n", arg.pattern);
   int error = regcomp(&re, arg.pattern, REG_EXTENDED | arg.i);
   if (error) perror("Error");
   for (int i = optind; i < argc; i++) {
@@ -197,11 +191,10 @@ void output(arguments arg, int argc, char** argv) {  //выход из всех 
   }
   regfree(&re);
 }
-// -i
-int main(int argc, char** argv) {
-  arguments arg = arguments_parser(argc, argv);
+
+int main(int argc, char **argv) {
+  arguments arg = argument_parser(argc, argv);
   output(arg, argc, argv);
   free(arg.pattern);
-
   return 0;
 }

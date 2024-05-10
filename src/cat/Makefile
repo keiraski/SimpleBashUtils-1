@@ -1,14 +1,14 @@
 SHELL= /bin/bash
 FLAG = -Wall -Wextra -Werror
 FILE = 1.txt
-CHECK = leaks -atExit -- ./s21_cat
+CHECK = leaks -atExit --
 
-all: claing s21 tests
+all: claing build tests
 
 claing:
 	clang-format -i *.c
 
-s21:
+build:
 	gcc $(FLAG) s21_cat.c -o s21_cat
 
 tests:
@@ -23,6 +23,7 @@ tests:
 	-diff <(./s21_cat --number $(FILE)) <(cat -n $(FILE))
 	-diff <(./s21_cat --number-nonblank $(FILE)) <(cat -b $(FILE))
 
+mem:
 	$(CHECK) ./s21_cat $(FILE)
 	$(CHECK) ./s21_cat -n $(FILE)
 	$(CHECK) ./s21_cat -e $(FILE)
@@ -30,3 +31,6 @@ tests:
 	$(CHECK) ./s21_cat -b $(FILE)
 	$(CHECK) ./s21_cat -s $(FILE)
 	$(CHECK) ./s21_cat -etsnb $(FILE)
+
+clean:
+	rm s21_cat
