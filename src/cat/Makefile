@@ -3,15 +3,15 @@ FLAG = -Wall -Wextra -Werror
 FILE = 1.txt
 CHECK = leaks -atExit --
 
-all: claing build tests
+all: claing s21_cat test
 
 claing:
 	clang-format -i *.c
 
-build:
+s21_cat:
 	gcc $(FLAG) s21_cat.c -o s21_cat
 
-tests:
+test:
 	-diff <(./s21_cat $(FILE)) <(cat $(FILE))
 	-diff <(./s21_cat -e $(FILE)) <(cat -e $(FILE))
 	-diff <(./s21_cat -t $(FILE)) <(cat -t $(FILE))

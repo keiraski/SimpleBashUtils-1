@@ -4,15 +4,15 @@ FILE = 11.txt 22.txt
 PATTERNS = pattern.txt
 CHECK = leaks -atExit --
 
-all: claing build tests
+all: claing s21_grep test
 
 claing:
 	clang-format -i *.c
 
-build:
+s21_grep:
 	gcc $(FLAG) s21_grep.c -o s21_grep
 
-tests:
+test:
 	-diff <(./s21_grep He $(FILE)) <(grep He $(FILE))
 	-diff <(./s21_grep -e He $(FILE)) <(grep -e He $(FILE))
 	-diff <(./s21_grep -i He $(FILE)) <(grep -i He $(FILE))

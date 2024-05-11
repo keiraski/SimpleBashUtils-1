@@ -8,7 +8,7 @@ typedef struct Arguments {
   int b, n, s, E, T, v;
 } arguments;
 
-arguments argument_parser(int argc, char** argv) {
+arguments argument_parser(int argc, char **argv) {
   arguments arg = {0, 0, 0, 0, 0, 0};
   struct option long_options[] = {{"number", no_argument, NULL, 'n'},
                                   {"number-nonblank", no_argument, NULL, 'b'},
@@ -18,35 +18,35 @@ arguments argument_parser(int argc, char** argv) {
   while ((opt = getopt_long(argc, argv, "+bnEeTtsv", long_options, NULL)) !=
          -1) {
     switch (opt) {
-      case 'b':
-        arg.b = 1;
-        break;
-      case 'n':
-        arg.n = 1;
-        break;
-      case 's':
-        arg.s = 1;
-        break;
-      case 'e':
-        arg.E = 1;
-        arg.v = 1;
-        break;
-      case 'E':
-        arg.E = 1;
-        break;
-      case 't':
-        arg.T = 1;
-        arg.v = 1;
-        break;
-      case 'T':
-        arg.T = 1;
-        break;
-      case 'v':
-        arg.v = 1;
-        break;
-      case '?':
-        fprintf(stderr, "Usage: %s [-bnEeTtsv] [file...]\n", argv[0]);
-        exit(1);
+    case 'b':
+      arg.b = 1;
+      break;
+    case 'n':
+      arg.n = 1;
+      break;
+    case 's':
+      arg.s = 1;
+      break;
+    case 'e':
+      arg.E = 1;
+      arg.v = 1;
+      break;
+    case 'E':
+      arg.E = 1;
+      break;
+    case 't':
+      arg.T = 1;
+      arg.v = 1;
+      break;
+    case 'T':
+      arg.T = 1;
+      break;
+    case 'v':
+      arg.v = 1;
+      break;
+    case '?':
+      fprintf(stderr, "Usage: %s [-bnEeTtsv] [file...]\n", argv[0]);
+      exit(1);
     }
   }
   return arg;
@@ -66,8 +66,8 @@ char v_output(char ch) {
   return ch;
 }
 
-void outline(arguments* arg, char* line, ssize_t read, int* line_count,
-             int* empty_count) {
+void outline(arguments *arg, char *line, ssize_t read, int *line_count,
+             int *empty_count) {
   int empty_line = read == 1 && line[0] == '\n';
   if (empty_line) {
     if (arg->s) {
@@ -99,8 +99,8 @@ void outline(arguments* arg, char* line, ssize_t read, int* line_count,
   }
 }
 
-void output(arguments* arg, FILE* f) {
-  char* line = NULL;
+void output(arguments *arg, FILE *f) {
+  char *line = NULL;
   size_t memline = 0;
   ssize_t read = 0;
   int line_count = 1;
@@ -113,13 +113,13 @@ void output(arguments* arg, FILE* f) {
   free(line);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   arguments arg = argument_parser(argc, argv);
   if (optind == argc) {
     output(&arg, stdin);
   } else {
     for (int i = optind; i < argc; i++) {
-      FILE* f = fopen(argv[i], "r");
+      FILE *f = fopen(argv[i], "r");
       if (!f) {
         fprintf(stderr, "cat: ");
         perror(argv[i]);
