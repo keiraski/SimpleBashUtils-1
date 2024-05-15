@@ -26,7 +26,7 @@ for var in -v -c -l -n -h -o; do
         continue
       fi
 
-      TESTABLE="for s21_grep.c s21_grep.h Makefile $var $var2 $var3"
+      TESTABLE="for s21_grep.c Makefile $var $var3"
       ./s21_grep $TESTABLE >1.txt
       grep $TESTABLE >2.txt
       DIFF_RES="$(diff 1.txt 2.txt)"
@@ -40,7 +40,7 @@ for var in -v -c -l -n -h -o; do
       rm 1.txt 2.txt
       test_diff "$DIFF_RES" "$TESTABLE"
 
-      TESTABLE="-e for -e ^int s21_grep.c s21_grep.h Makefile $var $var2 $var3"
+      TESTABLE="-e for -e ^int s21_grep.c Makefile $var $var3"
       ./s21_grep $TESTABLE >1.txt
       grep $TESTABLE >2.txt
       DIFF_RES="$(diff 1.txt 2.txt)"
