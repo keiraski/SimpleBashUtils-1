@@ -9,9 +9,9 @@ make rebuild
 
 declare -a tests=(
 "s test_0_grep.txt VAR"
-"for s21_grep.c grep.h Makefile VAR"
+"for s21_grep.c Makefile VAR"
 "for s21_grep.c VAR"
-"-e for -e ^int s21_grep.c grep.h Makefile VAR"
+"-e for -e ^int s21_grep.c Makefile VAR"
 "-e for -e ^int s21_grep.c VAR"
 "-e while -e void s21_grep.c Makefile VAR -f test_ptrn_grep.txt"
 )

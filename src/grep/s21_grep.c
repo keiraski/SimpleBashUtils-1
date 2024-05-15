@@ -33,7 +33,7 @@ void pattern_add(arguments *arg, char *pattern) {
     arg->mem_pattern *= 2;
   }
   if (arg->len_pattern != 0) {
-    strcat(arg->pattern, "|");  // было arg->pattern + arg->len_pattern
+    strcat(arg->pattern, "|");
     arg->len_pattern++;
   }
   arg->len_pattern += sprintf(arg->pattern + arg->len_pattern, "(%s)", pattern);

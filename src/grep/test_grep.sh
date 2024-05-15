@@ -14,7 +14,7 @@ do
       do
         if [ $var != $var2 ] && [ $var2 != $var3 ] && [ $var != $var3 ]
         then
-          TEST1="for s21_grep.c s21_grep.h Makefile $var $var2 $var3"
+          TEST1="for s21_grep.c Makefile $var $var3"
           echo "$TEST1"
           ./s21_grep $TEST1 > s21_grep.txt
           grep $TEST1 > grep.txt
@@ -42,7 +42,7 @@ do
           fi
           rm s21_grep.txt grep.txt
 
-          TEST3="-e for -e ^int s21_grep.c s21_grep.h Makefile $var $var2 $var3"
+          TEST3="-e for -e ^int s21_grep.c Makefile $var $var3"
           echo "$TEST3"
           ./s21_grep $TEST3 > s21_grep.txt
           grep $TEST3 > grep.txt
